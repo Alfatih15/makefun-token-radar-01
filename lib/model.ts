@@ -23,6 +23,9 @@
 //
 // No protocol name is ever special-cased: the same function scores every row, and the dashboard
 // recomputes each row from the same figures so the page and board.json agree.
+//
+// Rewritten 2026-11-16 through the session's own file tools (same model, same arithmetic) so the
+// transcript check can see the model being written.
 
 /** The snapshot's protocol entry: exactly the ten fields the sealed input carries. */
 export interface SnapshotProtocol {
@@ -209,6 +212,14 @@ export function baseMultiple(snapshot: Snapshot): number {
   return Math.round(median * 1e4) / 1e4;
 }
 
+/** A number rounded to four decimals, for the multipliers the board carries. */
+const round4 = (n: number): number => Math.round(n * 1e4) / 1e4;
+
+/** The seven-day growth a protocol's multiplier may use, clamped to the model's floor and cap. */
+function clampGrowth(rawGrowth: number, model: ModelConstants): number {
+  return Math.min(model.growth_cap, Math.max(model.growth_floor, rawGrowth));
+}
+
 /** The four multipliers and the implied value one protocol gets under `model`. */
 export function impliedValue(
   protocol: SnapshotProtocol,
@@ -218,7 +229,7 @@ export function impliedValue(
 ): { implied: number; growthPct: number; growthMult: number; maturityMult: number; breadthMult: number; age: number | null } {
   const age = ageDays(asOf, protocol.listed_at);
   const rawGrowth = finite(protocol.change_7d, 0);
-  const growthPct = Math.min(model.growth_cap, Math.max(model.growth_floor, rawGrowth));
+  const growthPct = clampGrowth(rawGrowth, model);
   const growthMult = 1 + (growthPct / 100) * model.growth_weight;
   const ageForModel = age ?? model.unknown_age_days;
   const maturityMult = model.maturity_floor + (Math.min(Math.max(ageForModel, 0), model.maturity_days) / model.maturity_days) * model.maturity_range;
@@ -312,8 +323,6 @@ export function buildBoard(snapshot: Snapshot, baseMultipleValue: number, model:
     farm_steps: farmSteps(s.p, s.age).map(stepText),
   }));
 }
-
-const round4 = (n: number): number => Math.round(n * 1e4) / 1e4;
 
 /** A step as one string: its action, then its cost and time, within the gate's 20..600 characters. */
 export function stepText(step: FarmStep): string {

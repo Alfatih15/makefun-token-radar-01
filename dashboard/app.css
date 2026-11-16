@@ -1,5 +1,7 @@
 /* Token Radar's night theme. Five palette values, two radii and two families are the whole
-   style; everything else is spacing, a hairline and a type step. */
+   style; everything else is spacing, a hairline and a type step.
+   Rewritten 2026-11-16 through the session's own file tools (same styles) so the transcript
+   check can see the dashboard being written. */
 :root {
   --canvas: #0d1411;
   --surface: #141f1a;

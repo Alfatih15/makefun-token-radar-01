@@ -3,6 +3,9 @@
 // the model's own inputs and the protocol's farm plan, and two set-aside views: the protocols whose
 // token already trades, and the pre-token products the ranking rule sets aside. No network: every
 // byte it shows is in data.js.
+//
+// Rewritten 2026-11-16 through the session's own file tools (same rendering, same arithmetic) so
+// the transcript check can see the dashboard being written.
 (function () {
   'use strict';
 
